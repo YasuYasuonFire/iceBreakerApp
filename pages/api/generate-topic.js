@@ -11,8 +11,8 @@ export default async function handler(req, res) {
       const prompt = `今日は${new Date(date).toLocaleDateString('ja-JP')}です。初対面の人同士でお互いを知るために役立つ、面白くて興味深いトークテーマを1つ提案してください。テーマは短く、簡潔で、質問形式にしてください。`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        // model: "gpt-4",
+        // model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
       });
 
