@@ -8,6 +8,7 @@ function MainComponent() {
   const [speaker, setSpeaker] = React.useState("");
   const [commentator, setCommentator] = React.useState("");
   const [showConfetti, setShowConfetti] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const addMember = () => {
     if (newMember.trim() !== "") {
@@ -24,15 +25,29 @@ function MainComponent() {
     setMembers((prevMembers) => prevMembers.filter((_, i) => i !== index));
   };
 
-  const generateTopic = () => {
-    const topics = [
-      "あなたの人生で最も影響を受けた本は何ですか？",
-      "子供の頃の夢は何でしたか？",
-      "最近あった面白い出来事を教えてください。",
-      "もし無人島に1つだけ物を持っていけるとしたら何を選びますか？",
-      "タイムマシンがあったら、どの時代に行きたいですか？",
-    ];
-    setTopic(topics[Math.floor(Math.random() * topics.length)]);
+  const generateTopic = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/generate-topic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ date: new Date().toISOString() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      setTopic(data.topic);
+    } catch (error) {
+      console.error('Error generating topic:', error);
+      setTopic('トピックの生成中にエラーが発生しました。もう一度お試しください。');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const selectParticipants = () => {
@@ -88,8 +103,9 @@ function MainComponent() {
       <button
         onClick={generateTopic}
         className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold"
+        disabled={isLoading}
       >
-        トピック生成
+        {isLoading ? 'トピック生成中...' : 'ChatGPTでトピック生成'}
       </button>
       <button
         onClick={selectParticipants}

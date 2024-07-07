@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+require('dotenv').config();
 const nextConfig = {
   experimental: {
     esmExternals: 'loose'
@@ -6,6 +7,9 @@ const nextConfig = {
   webpack: (config) => {
     config.externals = [...config.externals, { canvas: "canvas" }]; // required to make pdfjs work
     return config;
+  },
+  env: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
 };
 
