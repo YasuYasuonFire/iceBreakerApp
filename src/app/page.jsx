@@ -12,6 +12,7 @@ function MainComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationStyle, setAnimationStyle] = useState(0);
+  const [highlightTopic, setHighlightTopic] = useState(false);
 
   const addMember = () => {
     if (newMember.trim() !== "") {
@@ -56,7 +57,11 @@ function MainComponent() {
       setIsLoading(false);
       const elapsedTime = Date.now() - startTime;
       const remainingTime = Math.max(5000 - elapsedTime, 0);
-      setTimeout(() => setIsAnimating(false), remainingTime);
+      setTimeout(() => {
+        setIsAnimating(false);
+        setHighlightTopic(true);
+        setTimeout(() => setHighlightTopic(false), 3000); // 3秒後にハイライトを解除
+      }, remainingTime);
     }
   };
 
@@ -135,7 +140,9 @@ function MainComponent() {
         </button>
 
         {!isAnimating && topic && (
-          <div className="mt-4 p-4 bg-green-100 rounded">
+          <div className={`mt-4 p-4 rounded transition-all duration-300 ${
+            highlightTopic ? 'bg-yellow-200 animate-highlight' : 'bg-green-100'
+          }`}>
             <h2 className="font-bold mb-2">生成されたトピック:</h2>
             <p>{topic}</p>
           </div>
@@ -158,6 +165,16 @@ function MainComponent() {
           <ChaoticAnimation style={animationStyle} />
         </>
       )}
+
+      <style jsx>{`
+        @keyframes highlight {
+          0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+        .animate-highlight {
+          animation: highlight 0.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
