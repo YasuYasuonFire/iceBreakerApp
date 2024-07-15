@@ -14,6 +14,14 @@ function MainComponent() {
   const [animationStyle, setAnimationStyle] = useState(0);
   const [highlightTopic, setHighlightTopic] = useState(false);
 
+  useEffect(() => {
+    // クライアントサイドでのみ localStorage から値を取得
+    const savedNewMember = typeof window !== 'undefined' ? localStorage.getItem('lastNewMemberInput') : null;
+    if (savedNewMember) {
+      setNewMember(savedNewMember);
+    }
+  }, []);
+  
   const addMember = () => {
     if (newMember.trim() !== "") {
       const newMembers = newMember
@@ -21,6 +29,7 @@ function MainComponent() {
         .map((name) => name.trim())
         .filter((name) => name !== "");
       setMembers((prevMembers) => [...prevMembers, ...newMembers]);
+      localStorage.setItem('lastNewMemberInput', newMember);
       setNewMember("");
     }
   };
