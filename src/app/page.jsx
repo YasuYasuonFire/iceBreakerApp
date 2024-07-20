@@ -13,14 +13,24 @@ function MainComponent() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationStyle, setAnimationStyle] = useState(0);
   const [highlightTopic, setHighlightTopic] = useState(false);
+  const [commentatorSelectionStage, setCommentatorSelectionStage] = useState(0);
 
   useEffect(() => {
-    // クライアントサイドでのみ localStorage から値を取得
     const savedNewMember = typeof window !== 'undefined' ? localStorage.getItem('lastNewMemberInput') : null;
     if (savedNewMember) {
       setNewMember(savedNewMember);
     }
   }, []);
+
+  useEffect(() => {
+    if (commentatorSelectionStage === 1) {
+      const timer = setTimeout(() => setCommentatorSelectionStage(2), 3000);
+      return () => clearTimeout(timer);
+    } else if (commentatorSelectionStage === 2) {
+      const timer = setTimeout(() => setCommentatorSelectionStage(3), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [commentatorSelectionStage]);
   
   const addMember = () => {
     if (newMember.trim() !== "") {
@@ -41,7 +51,7 @@ function MainComponent() {
   const generateTopic = async () => {
     setIsLoading(true);
     setIsAnimating(true);
-    setAnimationStyle(Math.floor(Math.random() * 4)); // 0-3のランダムな数字
+    setAnimationStyle(Math.floor(Math.random() * 4));
     const startTime = Date.now();
 
     try {
@@ -69,21 +79,30 @@ function MainComponent() {
       setTimeout(() => {
         setIsAnimating(false);
         setHighlightTopic(true);
-        setTimeout(() => setHighlightTopic(false), 3000); // 3秒後にハイライトを解除
+        setTimeout(() => setHighlightTopic(false), 3000);
       }, remainingTime);
     }
   };
-
-  const selectParticipants = () => {
-    if (members.length < 2) {
-      alert("メンバーを2人以上追加してください。");
+  const selectSpeaker = () => {
+    if (members.length === 0) {
+      alert("メンバーを追加してください。");
       return;
     }
-    const shuffled = [...members].sort(() => 0.5 - Math.random());
-    setSpeaker(shuffled[0]);
-    setCommentator(shuffled[1]);
+    const selectedSpeaker = members[Math.floor(Math.random() * members.length)];
+    setSpeaker(selectedSpeaker);
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
+  };
+
+  const selectCommentator = () => {
+    if (members.length < 2) {
+      alert("コメンテーターを選出するには、少なくとも2人のメンバーが必要です。");
+      return;
+    }
+    let availableMembers = members.filter(member => member !== speaker);
+    const selectedCommentator = availableMembers[Math.floor(Math.random() * availableMembers.length)];
+    setCommentator(selectedCommentator);
+    setCommentatorSelectionStage(1); // アニメーション開始
   };
 
   return (
@@ -142,10 +161,16 @@ function MainComponent() {
           )}
         </button>
         <button
-          onClick={selectParticipants}
+          onClick={selectSpeaker}
           className="w-full mb-4 px-4 py-2 bg-[#98fb98] rounded hover:bg-[#90ee90] font-semibold"
         >
-          参加者選出
+          スピーカー選出
+        </button>
+        <button
+          onClick={selectCommentator}
+          className="w-full mb-4 px-4 py-2 bg-[#87cefa] rounded hover:bg-[#4169e1] font-semibold"
+        >
+          コメンテーター選出
         </button>
 
         {!isAnimating && topic && (
@@ -157,14 +182,13 @@ function MainComponent() {
           </div>
         )}
 
-        {speaker && commentator && (
-          <div className="mb-4 p-4 border rounded shadow-md">
-            <h2 className="font-semibold mb-2">選ばれた参加者</h2>
-            <p>スピーカー: {speaker}</p>
-            <p>コメンテーター: {commentator}</p>
-          </div>
-        )}
-
+      {(speaker || commentator) && commentatorSelectionStage !== 1 && commentatorSelectionStage !== 2 && (
+        <div className="mb-4 p-4 border rounded shadow-md">
+          <h2 className="font-semibold mb-2">選ばれた参加者</h2>
+          {speaker && <p>スピーカー: {speaker}</p>}
+          {commentator && <p>コメンテーター: {commentator}</p>}
+        </div>
+      )}
         <Confetti active={showConfetti} />
       </div>
 
@@ -174,6 +198,9 @@ function MainComponent() {
           <ChaoticAnimation style={animationStyle} />
         </>
       )}
+
+      {commentatorSelectionStage === 1 && <ExpectationAnimation />}
+      {commentatorSelectionStage === 2 && <BigCommentatorReveal name={commentator} />}
 
       <style jsx>{`
         @keyframes highlight {
@@ -350,5 +377,35 @@ const Confetti = ({ active }) => {
     </div>
   );
 };
+
+function ExpectationAnimation() {
+  const messages = ["誰がコメンテーターに？", "ドキドキ...", "期待高まる！", "まもなく発表！"];
+  const [currentMessage, setCurrentMessage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % messages.length);
+    }, 750);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="text-4xl font-bold text-white animate-pulse">
+        {messages[currentMessage]}
+      </div>
+    </div>
+  );
+}
+
+function BigCommentatorReveal({ name }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="text-6xl font-bold text-white animate-scale">
+        {name}
+      </div>
+    </div>
+  );
+}
 
 export default MainComponent;
