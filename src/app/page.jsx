@@ -100,8 +100,11 @@ function MainComponent() {
       return;
     }
     let availableMembers = members.filter(member => member !== speaker);
-    const selectedCommentator = availableMembers[Math.floor(Math.random() * availableMembers.length)];
-    setCommentator(selectedCommentator);
+    const selectRandomCommentator = () => {
+      const selectedCommentator = availableMembers[Math.floor(Math.random() * availableMembers.length)];
+      setCommentator(selectedCommentator);
+    };
+    selectRandomCommentator();
     setCommentatorSelectionStage(1); // アニメーション開始
   };
 
