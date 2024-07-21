@@ -51,7 +51,8 @@ function MainComponent() {
   const generateTopic = async () => {
     setIsLoading(true);
     setIsAnimating(true);
-    setAnimationStyle(Math.floor(Math.random() * 4));
+    // 0から3までのランダムな整数を生成し、アニメーションスタイルを設定します。
+    setAnimationStyle(Math.floor(Math.random() * 5));
     const startTime = Date.now();
 
     try {
@@ -270,6 +271,15 @@ function ChaoticAnimation({ style }) {
           top: `${(i * 50) % 100}%`,
           transform: 'translateY(-100%)',
           animation: `fall 5s linear ${i * 0.5}s infinite`,
+        });
+      case 4: // スターウォーズの宇宙船が奥に進んでいく
+        return (i) => ({
+          position: 'absolute',
+          left: '50%',
+          top: `${i * 10}%`,
+          transform: `translate(-50%, -50%) scale(${1 - i * 0.1})`,
+          opacity: `${1 - i * 0.1}`,
+          transition: 'all 2s linear',
         });
       default:
         return () => ({});
