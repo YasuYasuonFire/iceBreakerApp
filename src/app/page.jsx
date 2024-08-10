@@ -52,7 +52,7 @@ function MainComponent() {
   const generateTopic = async () => {
     setIsLoading(true);
     setIsAnimating(true);
-    // 0から3までのランダムな整数を生成し、アニメーションスタイ���を設定します。
+    // 0から3までのランダムな整数を生成し、アニメーションスタイを設定します。
     setAnimationStyle(Math.floor(Math.random() * 5));
     const startTime = Date.now();
 
@@ -135,8 +135,34 @@ function MainComponent() {
   };
 
   const showBigAnimation = () => {
-    // アニメーションを表示するロジック
-    alert('私にも言わせてくれ！');
+    const animationContainer = document.createElement('div');
+    animationContainer.style.position = 'fixed';
+    animationContainer.style.top = '0';
+    animationContainer.style.left = '0';
+    animationContainer.style.width = '100%';
+    animationContainer.style.height = '100%';
+    animationContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    animationContainer.style.zIndex = '1000';
+    animationContainer.style.display = 'flex';
+    animationContainer.style.alignItems = 'center';
+    animationContainer.style.justifyContent = 'center';
+    animationContainer.style.color = 'white';
+    animationContainer.style.fontSize = '3rem';
+    animationContainer.style.fontWeight = 'bold';
+    animationContainer.style.animation = 'fadeIn 1s ease-in-out';
+
+    const message = document.createElement('div');
+    message.innerText = '私にも言わせてくれ！';
+    animationContainer.appendChild(message);
+
+    document.body.appendChild(animationContainer);
+
+    setTimeout(() => {
+      animationContainer.style.animation = 'fadeOut 1s ease-in-out';
+      animationContainer.addEventListener('animationend', () => {
+        document.body.removeChild(animationContainer);
+      });
+    }, 3000);
   };
 
   return (
@@ -243,6 +269,14 @@ function MainComponent() {
         }
         .animate-highlight {
           animation: highlight 0.5s ease-in-out infinite;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
         }
       `}</style>
 
