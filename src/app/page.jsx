@@ -233,6 +233,13 @@ function MainComponent() {
           コメンテーター選出
         </button>
 
+        <button
+          onClick={() => sendMessage()}
+          className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold"
+        >
+          私にも言わせてくれ！
+        </button>
+
         {!isAnimating && topic && (
           <div className={`mt-4 p-4 rounded transition-all duration-300 ${
             highlightTopic ? 'bg-yellow-200 animate-highlight' : 'bg-green-100'
@@ -279,13 +286,6 @@ function MainComponent() {
           to { opacity: 0; }
         }
       `}</style>
-
-      <button
-        onClick={() => sendMessage()}
-        className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold"
-      >
-        私にも言わせてくれ！
-      </button>
     </div>
   );
 }
