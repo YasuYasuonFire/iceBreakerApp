@@ -14,6 +14,7 @@ function MainComponent() {
   const [animationStyle, setAnimationStyle] = useState(0);
   const [highlightTopic, setHighlightTopic] = useState(false);
   const [commentatorSelectionStage, setCommentatorSelectionStage] = useState(0);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const savedNewMember = typeof window !== 'undefined' ? localStorage.getItem('lastNewMemberInput') : null;
@@ -51,7 +52,7 @@ function MainComponent() {
   const generateTopic = async () => {
     setIsLoading(true);
     setIsAnimating(true);
-    // 0から3までのランダムな整数を生成し、アニメーションスタイルを設定します。
+    // 0から3までのランダムな整数を生成し、アニメーションスタイ���を設定します。
     setAnimationStyle(Math.floor(Math.random() * 5));
     const startTime = Date.now();
 
@@ -107,6 +108,35 @@ function MainComponent() {
     };
     selectRandomCommentator();
     setCommentatorSelectionStage(1); // アニメーション開始
+  };
+
+  useEffect(() => {
+    const ws = new WebSocket('wss://tbu7v0qm9e.execute-api.ap-northeast-1.amazonaws.com/production/');
+    ws.onopen = () => console.log('WebSocket connected');
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // メッセージを受信したときの処理
+      console.log('Received:', data);
+      if (data.action === 'speakUp') {
+        // アニメーションを表示
+        showBigAnimation();
+      }
+    };
+    ws.onclose = () => console.log('WebSocket disconnected');
+    setSocket(ws);
+
+    return () => ws.close();
+  }, []);
+
+  const sendMessage = () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ action: 'speakUp'}));
+    }
+  };
+
+  const showBigAnimation = () => {
+    // アニメーションを表示するロジック
+    alert('私にも言わせてくれ！');
   };
 
   return (
@@ -215,6 +245,13 @@ function MainComponent() {
           animation: highlight 0.5s ease-in-out infinite;
         }
       `}</style>
+
+      <button
+        onClick={() => sendMessage()}
+        className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold"
+      >
+        私にも言わせてくれ！
+      </button>
     </div>
   );
 }
