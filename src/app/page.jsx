@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, MessageSquare, User, MessageCircle, Send } from 'lucide-react';
 
 function MainComponent() {
   const [members, setMembers] = useState([]);
@@ -171,7 +171,7 @@ function MainComponent() {
         <h1 className="text-2xl font-bold mb-4">アイスブレイクアプリ</h1>
 
         <div className="mb-4 p-4 border rounded shadow-md">
-          <h2 className="font-semibold mb-2">メンバー追加</h2>
+          <h2 className="font-semibold mb-2">メンバ追加</h2>
           <textarea
             value={newMember}
             onChange={(e) => setNewMember(e.target.value)}
@@ -188,7 +188,7 @@ function MainComponent() {
         </div>
 
         <div className="mb-4 p-4 border rounded shadow-md">
-          <h2 className="font-semibold mb-2">メンバー一覧</h2>
+          <h2 className="font-semibold mb-2">メンバ</h2>
           <div>
             {members.map((member, index) => (
               <div key={index} className="flex justify-between items-center mb-2">
@@ -204,41 +204,43 @@ function MainComponent() {
           </div>
         </div>
 
-        <button
-          onClick={generateTopic}
-          className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold relative overflow-hidden"
-          disabled={isAnimating}
-        >
-          {isAnimating ? (
-            <>
-              <span className="opacity-0">ChatGPTでトピック生成</span>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <LoadingAnimation />
-              </div>
-            </>
-          ) : (
-            'ChatGPTでトピック生成'
-          )}
-        </button>
-        <button
-          onClick={selectSpeaker}
-          className="w-full mb-4 px-4 py-2 bg-[#98fb98] rounded hover:bg-[#90ee90] font-semibold"
-        >
-          スピーカー選出
-        </button>
-        <button
-          onClick={selectCommentator}
-          className="w-full mb-4 px-4 py-2 bg-[#87cefa] rounded hover:bg-[#4169e1] font-semibold"
-        >
-          コメンテーター選出
-        </button>
-
-        <button
-          onClick={() => sendMessage()}
-          className="w-full mb-4 px-4 py-2 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold"
-        >
-          私にも言わせてくれ！
-        </button>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <button
+            onClick={generateTopic}
+            className="p-4 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold flex flex-col items-center justify-center relative overflow-hidden"
+            disabled={isAnimating}
+          >
+            {isAnimating ? (
+              <LoadingAnimation />
+            ) : (
+              <>
+                <MessageSquare size={24} />
+                <span>トピック</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={selectSpeaker}
+            className="p-4 bg-[#98fb98] rounded hover:bg-[#90ee90] font-semibold flex flex-col items-center justify-center"
+          >
+            <User size={24} />
+            <span>スピーカー</span>
+          </button>
+          <button
+            onClick={selectCommentator}
+            className="p-4 bg-[#87cefa] rounded hover:bg-[#4169e1] font-semibold flex flex-col items-center justify-center"
+          >
+            <MessageCircle size={24} />
+            <span>コメンテーター</span>
+          </button>
+          <button
+            onClick={() => sendMessage()}
+            className="p-4 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold flex flex-col items-center justify-center"
+          >
+            <Send size={24} />
+            <span>言わせて</span>
+          </button>
+        </div>
 
         {!isAnimating && topic && (
           <div className={`mt-4 p-4 rounded transition-all duration-300 ${
