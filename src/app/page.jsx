@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Plus, MessageSquare, User, MessageCircle, Send } from 'lucide-react';
+import { Loader2, Plus, MessageSquare, User, MessageCircle, Send, X } from 'lucide-react';
 
 function MainComponent() {
   const [members, setMembers] = useState([]);
@@ -15,6 +15,9 @@ function MainComponent() {
   const [highlightTopic, setHighlightTopic] = useState(false);
   const [commentatorSelectionStage, setCommentatorSelectionStage] = useState(0);
   const [socket, setSocket] = useState(null);
+  const [selectedGenre, setSelectedGenre] = useState("");
+  const [showGenreDialog, setShowGenreDialog] = useState(false);
+  const genres = ['SF/ファンタジー', '歴史', '日常', 'ビジネス', 'テクノロジー', 'アート'];
 
   useEffect(() => {
     const savedNewMember = typeof window !== 'undefined' ? localStorage.getItem('lastNewMemberInput') : null;
@@ -49,10 +52,23 @@ function MainComponent() {
     setMembers((prevMembers) => prevMembers.filter((_, i) => i !== index));
   };
 
-  const generateTopic = async () => {
+  const openGenreDialog = () => {
+    setShowGenreDialog(true);
+  };
+
+  const closeGenreDialog = () => {
+    setShowGenreDialog(false);
+  };
+
+  const selectGenreAndGenerateTopic = async (genre) => {
+    setSelectedGenre(genre);
+    closeGenreDialog();
+    await generateTopic(genre);
+  };
+
+  const generateTopic = async (genre) => {
     setIsLoading(true);
     setIsAnimating(true);
-    // 0から3までのランダムな整数を生成し、アニメーションスタイを設定します。
     setAnimationStyle(Math.floor(Math.random() * 5));
     const startTime = Date.now();
 
@@ -62,7 +78,10 @@ function MainComponent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ date: new Date().toISOString() }),
+        body: JSON.stringify({ 
+          date: new Date().toISOString(),
+          genre: genre 
+        }),
       });
 
       if (!response.ok) {
@@ -206,18 +225,12 @@ function MainComponent() {
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <button
-            onClick={generateTopic}
+            onClick={openGenreDialog}
             className="p-4 bg-[#ffb6c1] rounded hover:bg-[#ffa07a] font-semibold flex flex-col items-center justify-center relative overflow-hidden"
             disabled={isAnimating}
           >
-            {isAnimating ? (
-              <LoadingAnimation />
-            ) : (
-              <>
-                <MessageSquare size={24} />
-                <span>トピック</span>
-              </>
-            )}
+            <MessageSquare size={24} />
+            <span>トピック</span>
           </button>
           <button
             onClick={selectSpeaker}
@@ -241,6 +254,31 @@ function MainComponent() {
             <span>言わせて</span>
           </button>
         </div>
+
+        {/* ジャンル選択ダイアログ */}
+        {showGenreDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">ジャンルを選択</h2>
+                <button onClick={closeGenreDialog} className="text-gray-500 hover:text-gray-700">
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {genres.map((genre) => (
+                  <button
+                    key={genre}
+                    onClick={() => selectGenreAndGenerateTopic(genre)}
+                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                  >
+                    {genre}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {!isAnimating && topic && (
           <div className={`mt-4 p-4 rounded transition-all duration-300 ${
